@@ -1,0 +1,66 @@
+.data-table-table {
+  width: 95%;
+  margin: 20px auto;
+}
+
+.data-table-table .mat-header-cell {
+  background: #26E2DB;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+  text-align: center;
+}
+
+.data-table-table .table-row-not-arrived:hover {
+  background: #26E2DB44;
+}
+
+
+/* Szűrés */
+.data-table-control-panel {
+  margin: 20px 20px;
+}
+
+.kl-filter-button-area {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  clear: both;
+}
+
+.data-table-control-panel div {
+  float: left;
+  margin-right: 20px;
+  ;
+}
+
+
+.table-row-not-arrived {
+  background-color: #ffffff;
+}
+
+.table-row-arrived {
+  background-color: #666666;
+}
+
+/* Táblázat cellák */
+
+.mat-cell {
+  padding: 0 10px;
+}
+
+/* Dátum választók, select mezők formázása */
+
+.hasDatepicker,
+select,
+input {
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid#aaa;
+}
+
+/* Gombok elrendezése */
+
+button {
+  margin-right: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

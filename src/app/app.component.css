@@ -1,0 +1,40 @@
+/* CSS reset */
+html {
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Header */
+
+#header {
+    background: linear-gradient(91.67deg, rgba(255, 224, 126, 0) -28.67%, #FFE07E 18.08%, rgba(255, 224, 126, 0) 63.44%), linear-gradient(98.05deg, #01FFFF 0%, #29DDE5 50.11%, #22EACA 98.84%), linear-gradient(100.64deg, #5FEBC6 11.1%, #2FACC7 86.97%);
+    border-bottom: 2px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#header img{
+    height: 50px;
+    padding: 10px;
+    
+}

@@ -1,0 +1,55 @@
+<h1 mat-dialog-title>#{{orderId}}</h1>
+<div mat-dialog-content>
+  <ng-container *ngIf='!orderData'>
+    Töltés...
+  </ng-container>
+  <ng-container *ngIf='orderData'>
+    <table>
+      <h3>Számlázási adatok</h3>
+      {{orderData.billing.last_name}} {{orderData.billing.first_name}} <br>
+      {{orderData.billing.city}} <br>
+      {{orderData.billing.address_1}} {{orderData.billing.address_2}} <br>
+      {{orderData.billing.postcode}} <br>
+      {{orderData.billing.company}} <br>
+
+      <h4>Számla elkészült? </h4>
+      <ng-container *ngIf='wooBillGenerated.length == 1'>
+        <p>Igen</p>
+      </ng-container>
+      <ng-container *ngIf='wooBillGenerated.length < 1'>
+        <p>Nem</p>
+      </ng-container>
+
+      <h4>E-mail</h4>
+      {{orderData.billing.email}}
+
+      <h4>Telefonszám</h4>
+      {{orderData.billing.phone}}
+
+      <h4>Fizetési mód</h4>
+      {{orderData.payment_method_title}}
+      {{orderData.transaction_id}}
+
+      <h3>Termékek</h3>
+      <ng-container *ngFor="let line_item of orderData.line_items">
+        <h4><a
+             href="https://kreativliget.hu/wp-admin/post.php?post={{line_item.product_id}}&action=edit"
+             target="_blank">{{line_item.name}}</a></h4>
+        <p *ngFor="let meta of line_item.meta_data">
+          <span *ngIf="!meta.key.startsWith('_')">{{meta.key}}:
+            {{meta.value}}</span>
+        </p>
+      </ng-container>
+
+    </table>
+  </ng-container>
+
+</div>
+<div mat-dialog-actions>
+  <ng-container *ngIf="authority >= 3">
+    <a href="https://kreativliget.hu/wp-admin/post.php?post={{orderId}}&action=edit"
+       target="_blank"><button mat-button>Rendelés szerkesztése</button></a>
+  </ng-container>
+  <button mat-button
+          (click)="onCloseClick()">Bezárás</button>
+</div>

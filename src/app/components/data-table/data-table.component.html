@@ -1,0 +1,273 @@
+  <div class="data-table-control-panel ">
+    <!-- Date filter -->
+    <div class="kl-date-filter-area">
+      <p><strong> Esemény dátum </strong>(-tól -ig)</p>
+      <input type="text"
+             id="dateStart"
+             #startDate
+             [placeholder]="'-tól'">
+      <input type="text"
+             id="dateEnd"
+             #endDate
+             [placeholder]="'-ig'">
+    </div>
+
+    <div class="kl-publish-date-filter-area">
+      <p><strong> Közzétéve dátum </strong>(-tól -ig)</p>
+      <input type="text"
+             id="publishDateStart"
+             #publishStartDate
+             [placeholder]="'-tól'">
+      <input type="text"
+             id="publishDateEnd"
+             #publishEndDate
+             [placeholder]="'-ig'">
+    </div>
+
+
+    <!-- Product filter -->
+    <div class="kl-product-filter-area">
+      <p><strong> Esemény neve </strong></p>
+      <ng-select2 [data]="productNamesForSelect2"
+                  [placeholder]="'Kérlek válassz terméket...'"
+                  [width]="200"
+                  [(ngModel)]="query.productName">
+      </ng-select2>
+    </div>
+
+    <!-- Name filter -->
+    <div class="kl-product-filter-area">
+      <p><strong> Számlázási név </strong></p>
+      <ng-select2 [data]="billingNamesForSelect2"
+                  [placeholder]="'Kérlek válassz számlázási nevet...'"
+                  [width]="200"
+                  [(ngModel)]="query.billingName">
+      </ng-select2>
+    </div>
+
+    <!-- Apply filter options and search -->
+    <div class="kl-filter-button-area">
+      <button mat-raised-button
+              type="button"
+              (click)="modifyDateFilterAndApplyAllFilters()">Keresés</button>
+
+      <!-- Remove all filters -->
+      <button mat-raised-button
+              type="button"
+              (click)="turnOffFilters()">Szűrési feltételek törlése</button>
+
+      <!-- Excel export -->
+      <ng-container *ngIf="authority >= 3">
+        <a [href]="url"
+           download><button mat-raised-button
+                  type="button">Excel export</button></a>
+      </ng-container>
+    </div>
+  </div>
+
+  <table mat-table
+         class="data-table-table"
+         matSort
+         aria-label="Elements"
+         [dataSource]="data"
+         (matSortChange)="sortChange($event)"
+         matSortActive="id"
+         matSortDirection="desc">
+
+    <!-- Id Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Id</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.id}}</td>
+    </ng-container>
+
+    <!-- Woo Id Column -->
+    <ng-container matColumnDef="wooid">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Woo Id</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.wooid}}</td>
+    </ng-container>
+
+    <!-- Közzétéve Column -->
+    <ng-container matColumnDef="kozzeteve">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Közzétéve dátum</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.kozzeteve}}</td>
+    </ng-container>
+
+    <!-- Közzétéve (SZEM) Column -->
+    <ng-container matColumnDef="szem">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Megtekintés</th>
+      <td mat-cell
+          *matCellDef="let row">
+        <button mat-icon-button
+                (click)="openSzemPopup(row.wooid)">
+          <mat-icon>remove_red_eye</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Számlázási név Column -->
+    <ng-container matColumnDef="szamlazasinev">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Számlázási név</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.szamlazasinev}}</td>
+    </ng-container>
+
+    <!-- Végösszeg Column -->
+    <ng-container matColumnDef="vegosszeg">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Végösszeg</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.vegosszeg}}</td>
+    </ng-container>
+
+    <!-- Fizetési mód Column -->
+    <ng-container matColumnDef="fizetesimod">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Fizetési mód</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.fizetesimod}}</td>
+    </ng-container>
+
+    <!-- Állapot Column -->
+    <ng-container matColumnDef="allapot">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Állapot</th>
+      <td mat-cell
+          *matCellDef="let row">
+        <!-- INFO: Status options - if authority >= 3  -->
+        <ng-container *ngIf="authority >= 3">
+          <div>
+            <select id="orderStatus{{row.id}}"
+                    (change)="selectValueChanged($event, row)">
+              <option *ngFor="let status of states"
+                      [ngValue]="status.value"
+                      [value]="status.value"
+                      [selected]="row.allapot == status.value"
+                      [hidden]="status.value == 'missing-status'">
+                {{status.name}}
+              </option>
+            </select>
+            <button mat-raised-button
+                    *ngIf="!row.statusLoading"
+                    type="button"
+                    (click)=modifyRowStatusMaxAuth(row)>Módosítás</button>
+            <span *ngIf="row.statusLoading">Módosítás...</span>
+          </div>
+        </ng-container>
+        <!-- INFO: Status options - If authority < 3  -->
+        <ng-container *ngIf="authority < 3">
+          <div>
+            <select id="orderStatus{{row.id}}"
+                    disabled>
+              <option *ngFor="let status of states"
+                      [ngValue]="status.value"
+                      [value]="status.value"
+                      [selected]="row.allapot == status.value"
+                      [hidden]="status.value == 'missing-status'">
+                {{status.name}}
+              </option>
+            </select>
+            <button mat-raised-button
+                    *ngIf="!row.statusLoading"
+                    type="button"
+                    (click)=modifyRowStatusMinAuth(row)>Teljesítettre
+              módosítás</button>
+            <span *ngIf="row.statusLoading">Módosítás...</span>
+          </div>
+        </ng-container>
+      </td>
+    </ng-container>
+
+    <!-- Termékneve Column -->
+    <ng-container matColumnDef="termekneve">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Esemény neve</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.termekneve}}</td>
+    </ng-container>
+
+    <!-- Dátum Column -->
+    <ng-container matColumnDef="datum">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Esemény dátum</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.datum}}</td>
+    </ng-container>
+
+    <!-- Mennyiség Column -->
+    <ng-container matColumnDef="mennyiseg">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Mennyiség</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.mennyiseg}}</td>
+    </ng-container>
+
+    <!-- Vásznak Column -->
+    <ng-container matColumnDef="vasznak">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Vásznak</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.vasznak}}</td>
+    </ng-container>
+
+    <!-- Megjegyzés Column -->
+    <ng-container matColumnDef="megjegyzes">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Vevői megjegyzés</th>
+      <td mat-cell
+          *matCellDef="let row">{{row.megjegyzes}}</td>
+    </ng-container>
+
+    <!-- Megérkezett mód Column -->
+    <ng-container matColumnDef="megerkezett">
+      <th mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header>Vendég megérkezett</th>
+      <td mat-cell
+          *matCellDef="let row">
+        <button mat-raised-button
+                *ngIf="!row.megerkezett"
+                type="button"
+                (click)='customerArrived(row, true)'>Megérkezett</button>
+        <button mat-raised-button
+                *ngIf="row.megerkezett"
+                type="button"
+                (click)='customerArrived(row, false)'>Mégse</button>
+    </ng-container>
+
+    <tr mat-header-row
+        *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row
+        (change)="changeRowColor($event)"
+        [className]="row.megerkezett ? 'table-row-arrived' : 'table-row-not-arrived'"
+        *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator #paginator
+                 [length]="countOfOrders ? countOfOrders : 0"
+                 [pageIndex]="0"
+                 [pageSize]="50"
+                 [pageSizeOptions]="[25, 50, 100, 250]"
+                 (page)="paginatorChange($event)"
+                 showFirstLastButtons>
+  </mat-paginator>
